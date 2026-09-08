@@ -57,6 +57,13 @@
     `Option<Duration>`（`None`＝無期限、`Some(Duration::ZERO)`＝即時、
     `Some(d)`＝`d`まで待つ）とした。ABIの`timeout_ms`の意味（負値＝無期限、
     `0`＝即時、正値＝その時間まで）自体はGo版と変えていない。
+  - **エラーの表現方法もGoとの意図的な設計差**：`conn_write`の失敗は
+    Goが標準の`error`インターフェース、Rustは専用の`UnknownConnection`型を
+    返す`Result<(), UnknownConnection>`とした。ABI上の失敗パターンは1種類
+    （未知の`conn_id`）のみで両言語とも変わらないが、表現は各言語の慣習に
+    合わせた（Rustは失敗が１パターンしかない場合、専用エラー型＋`Result`が
+    慣用的）。`send`が失敗を一切報告しない（ABI仕様上の設計、spec 3.4）点も
+    両言語で共通のドキュメント方針（doc comment上部に明記）を取っている。
 - **単体テスト**：`Host`トレイトをテスト用の`MockHost`（クロージャを
   `RefCell<Option<Box<dyn FnMut...>>>`で保持）に差し替え、
   `recv_with`/`send_with`/`conn_write_with`等の非公開ヘルパーを直接叩いて
@@ -87,7 +94,32 @@
 **devcontainerにVS Code拡張`github.vscode-github-actions`も追加した**
 （`.github/workflows/ci.yml`をエディタ上で見やすくするため）。
 
-次は「次にやること」の4番が完了し、5番（保留事項の見直し等）へ進める段階。
+**使い勝手・ドキュメントの見直しも一巡した（2026-09-08）。** 「次にやること」
+5番の一環として、両言語のREADME・パッケージメタデータ・サンプルを点検し、
+以下を対応した。
+
+- `rust/execsandbox/README.md`の`cargo add`/`docs.rs`記述を、crates.io未公開の
+  現状に合わせて修正（`git`依存での参照方法を明記。実際に`cargo build`で
+  解決・ビルドできることを確認済み——サブディレクトリ配置・非ワークスペース
+  構成でもCargoは単一のcrateを自動検出する）。
+- `go/execsandbox/`・`rust/execsandbox/`それぞれにLICENSEファイルを追加
+  （ルートの`LICENSE`と同内容。pkg.go.dev/crates.ioはパッケージ/クレート
+  直下のLICENSE検出を期待するため）。
+- Go版のpackage doc commentは`doc.go`に既に存在していることを確認
+  （当初「無い」と誤認していた。`execsandbox.go`への重複追加は取り消し済み）。
+- `conn_write`のエラー表現がGo（`error`）とRust（`UnknownConnection`＋
+  `Result`）で異なる点は意図的な設計差であることをPLAN.mdへ明記
+  （Rust実装の「経緯」節）。
+- 新example `worker`をGo（`go/examples/worker/`）・Rust
+  （`rust/execsandbox/examples/worker.rs`）双方に追加。既存のsender/
+  receiver/echoが単機能のデモなのに対し、`worker`は正のtimeoutで
+  待ち時間中に周期処理（ハートビート）を行い、全`Kind`を明示的に
+  分岐するという「よくある使い方パターン」を示す。両言語ともCIの
+  wasm-buildジョブはディレクトリを走査する構成のため、追加のCI変更は
+  不要（`go/examples/*/`のループ、`cargo build --examples`）。
+
+次は「次にやること」の5番のうち、パッケージマネージャへの公開方法の検討が
+残っている。
 （2026-09-08、execsandbox本体のフェーズ①〜④完了後に着手）
 
 ### ディレクトリ構成の決定事項（2026-09-08）

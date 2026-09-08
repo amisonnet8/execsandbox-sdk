@@ -11,8 +11,12 @@ Rust-native API: `send`/`recv`/`conn_write` work with `&[u8]`/`Vec<u8>`, a
 
 ## Install
 
-```
-cargo add execsandbox
+This crate is not yet published to crates.io. Until then, depend on it
+directly from this repository:
+
+```toml
+[dependencies]
+execsandbox = { git = "https://github.com/amisonnet8/execsandbox-sdk" }
 ```
 
 ## Usage

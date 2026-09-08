@@ -8,6 +8,7 @@ Minimal ExecSandbox guest modules built with the
 | [`sender`](sender) | `Send` — sends one message to destination 1 and exits |
 | [`receiver`](receiver) | `Recv` — blocks for one message, prints it, and exits |
 | [`echo`](echo) | `ConnWrite` — echoes data back on an external connection |
+| [`worker`](worker) | A positive `Recv` timeout for periodic work between messages, dispatching every `Kind` explicitly |
 
 ## Building
 
