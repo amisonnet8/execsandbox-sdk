@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# execsandbox本体はこのリポジトリに依存しないが、このリポジトリ(SDK)は
+# ABIへの実際の適合を検証するために本体に依存してよい、という非対称な
+# 依存を許容している(PLAN.md「CIの決定事項」参照)。本体はGitHub Releases
+# ではなくソースからビルドし、バージョンはタグで固定する
+# (更新時はEXECSANDBOX_HOST_REFを書き換えること)。
+env:
+  EXECSANDBOX_HOST_REF: v0.1.0
+
+jobs:
+  unit-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: execsandbox
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: gofmt
+        run: |
+          fmt_out="$(gofmt -l .)"
+          if [ -n "$fmt_out" ]; then
+            echo "$fmt_out" 1>&2
+            echo "gofmt: above files are not formatted (run 'gofmt -w .')" 1>&2
+            exit 1
+          fi
+      - name: go vet
+        run: go vet ./...
+      - name: go test
+        run: go test -count=1 ./...
+
+  wasm-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: install TinyGo
+        run: bash .devcontainer/install-tinygo.sh
+      - name: build examples with TinyGo (wasip1)
+        run: |
+          for dir in examples/*/; do
+            echo "=== $dir ==="
+            (cd "$dir" && tinygo build -target=wasip1 -o /tmp/"$(basename "$dir")".wasm .)
+          done
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: execsandbox-sdk
+      - uses: actions/checkout@v4
+        with:
+          repository: amisonnet8/execsandbox
+          ref: ${{ env.EXECSANDBOX_HOST_REF }}
+          path: execsandbox-host
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      - name: install TinyGo
+        run: bash execsandbox-sdk/.devcontainer/install-tinygo.sh
+      - name: e2e (send/recv)
+        env:
+          EXECSANDBOX_HOST_REPO: ${{ github.workspace }}/execsandbox-host
+        run: bash execsandbox-sdk/tests/e2e_send_recv.sh
+      - name: e2e (external connection)
+        env:
+          EXECSANDBOX_HOST_REPO: ${{ github.workspace }}/execsandbox-host
+        run: bash execsandbox-sdk/tests/e2e_conn.sh

@@ -1,0 +1,18 @@
+{
+  // 対応言語: TinyGo（Go）→Rustの順（PLAN.md参照）。
+  // Goは公式feature（devcontainers組織）で導入。TinyGoは公式featureが
+  // 存在しないため、devcontainer featureを使わずpostCreateCommandで
+  // TinyGo公式配布（.deb）を直接導入する（PLAN.md「決定事項」参照）。
+  "name": "execsandbox-sdk",
+  "image": "mcr.microsoft.com/devcontainers/base:bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/go:1": {}
+  },
+  "postCreateCommand": "bash .devcontainer/install-tinygo.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": ["golang.go", "tinygo.vscode-tinygo"]
+    }
+  },
+  "remoteUser": "vscode"
+}
