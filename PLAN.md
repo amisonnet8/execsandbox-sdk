@@ -81,6 +81,12 @@
   パス（scratchpad配下等、長くなりがち）に置くと`bind: invalid argument`
   で失敗することがある（108バイト前後の制限）。`go/tests/e2e_send_recv.sh`は
   `/tmp`直下に短い一時ディレクトリを別途作ってこれに充てている。
+- **`actions/setup-go`のキャッシュは無効化する**（`cache: false`）。
+  `go/execsandbox/`・`go/examples/*`はいずれも外部依存を持たず`go.sum`が
+  存在しないため、既定の依存キャッシュは`go.sum`を探せず警告を出す
+  （2026-09-08、CI初回実行のwarningで発覚）。`actions/checkout`・
+  `actions/setup-go`のメジャーバージョンは、Node.jsランタイムが新しい
+  ものに追随する（現在`checkout@v7`・`setup-go@v7`、両方`node24`）。
 
 この構成が「同じ種類の判断や落とし穴」として今後も繰り返されるようなら、
 `.claude/rules/testing.md`の新設をあらためて提案する

@@ -20,10 +20,11 @@ jobs:
       run:
         working-directory: go/execsandbox
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version: stable
+          cache: false
       - name: gofmt
         run: |
           fmt_out="$(gofmt -l .)"
@@ -40,10 +41,11 @@ jobs:
   wasm-build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version: stable
+          cache: false
       - name: install TinyGo
         run: bash .devcontainer/install-tinygo.sh
       - name: build examples with TinyGo (wasip1)
@@ -56,17 +58,18 @@ jobs:
   integration:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           path: execsandbox-sdk
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: amisonnet8/execsandbox
           ref: ${{ env.EXECSANDBOX_HOST_REF }}
           path: execsandbox-host
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version: stable
+          cache: false
       - name: install TinyGo
         run: bash execsandbox-sdk/.devcontainer/install-tinygo.sh
       - name: e2e (send/recv)
