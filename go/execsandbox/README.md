@@ -51,3 +51,7 @@ guest modules built with this package. The ABI itself is defined by the
 host project, not by this package — see
 [`docs/spec/execsandbox_spec_ja.md`](https://github.com/amisonnet8/execsandbox/blob/main/docs/spec/execsandbox_spec_ja.md),
 section 5.
+
+---
+
+日本語版は [README_ja.md](README_ja.md) を参照してください。

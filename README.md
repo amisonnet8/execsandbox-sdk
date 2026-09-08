@@ -1,82 +1,98 @@
 # ExecSandbox SDK
 
-[ExecSandbox](https://github.com/amisonnet8/execsandbox) 用のWASMゲスト
-モジュールを書くための、各言語向けSDKライブラリ集。
+A collection of language-native SDK libraries for writing WASM guest
+modules for [ExecSandbox](https://github.com/amisonnet8/execsandbox).
 
-## ExecSandboxとは
+## What is ExecSandbox
 
-WASM実行ランタイムとWASMモジュールを1つの実行ファイルに封じ込める、環境構築
-不要のポータブルなサンドボックス実行ツール（Go製、中核は
-[wazero](https://github.com/tetratelabs/wazero)）。複数のExecSandbox
-インスタンスをメールボックス方式のメッセージングで繋ぎ合わせてシステムを
-構成する。本体の詳細は
-[execsandboxリポジトリ](https://github.com/amisonnet8/execsandbox)の
-`docs/spec/execsandbox_spec_ja.md` を参照。
+A portable, setup-free sandboxed execution tool that bundles a WASM
+runtime and a WASM module into a single executable (written in Go, built
+on [wazero](https://github.com/tetratelabs/wazero) at its core). Multiple
+ExecSandbox instances can be wired together into a system via
+mailbox-style messaging. See the
+[execsandbox repository](https://github.com/amisonnet8/execsandbox)'s
+`docs/spec/execsandbox_spec_ja.md` for details on the host project.
 
-## このリポジトリの役割
+## This repository's role
 
-ExecSandboxのゲストモジュール（WASM側）は、ホストが提供する少数のホスト関数
-（`send`/`recv`/`conn_write`/`max_frame`）を`import`することで、他の
-ExecSandboxインスタンスとメッセージをやり取りする。この呼び出し規約（ABI）は
-低レベルの契約であり、素で叩くとポインタ・長さ・バッファ確保を利用者が
-直接扱う必要がある。
+An ExecSandbox guest module (the WASM side) exchanges messages with other
+ExecSandbox instances by importing a small set of host functions the
+host provides (`send`/`recv`/`conn_write`/`max_frame`). This calling
+convention (ABI) is a low-level contract: used directly, it requires the
+caller to handle pointers, lengths, and buffer allocation itself.
 
-**このリポジトリは、そのABIの上に各言語ネイティブな皮を被せたSDKライブラリを
-提供する。** バッファ確保を隠す、メッセージ種別を列挙型にする、タイムアウトを
-言語ネイティブな型（`time.Duration`等）で受ける、といった使い勝手の改善は
-ここで行う。
+**This repository provides SDK libraries that wrap that ABI in a
+language-native skin.** Usability improvements such as hiding buffer
+allocation, turning message kinds into an enum, and taking timeouts as a
+language-native type (`time.Duration`, etc.) belong here.
 
-## ABIとの関係
+## Relationship with the ABI
 
-- **ABIの定義そのものはこのリポジトリにはない。** 正は
-  [execsandboxリポジトリ](https://github.com/amisonnet8/execsandbox)の
-  仕様書§5であり、このリポジトリは参照するだけでコピーしない。
-- ABIは後方互換のみ保証される。本体とSDKのバージョンがズレていても、本体が
-  新しければ壊れない（本体が古いまま、SDKが新しいホスト関数を使い始めた
-  場合のみ、利用者は本体側を先にアップデートする必要がある）。
-- 本体のコードへの依存はゼロ。SDKは各言語の外部関数宣言（Goの
-  `//go:wasmimport`、Rustの`extern "C"`等）でABIを直接叩くだけで、
-  execsandbox本体のパッケージをimportしない。
+- **The ABI itself is not defined in this repository.** The source of
+  truth is section 5 of the
+  [execsandbox repository](https://github.com/amisonnet8/execsandbox)'s
+  spec document; this repository only references it, never copies it.
+- The ABI only guarantees backward compatibility. Even if the host
+  project's and this SDK's versions drift apart, things keep working as
+  long as the host is newer (only if the host stays old while the SDK
+  starts using a newer host function does the user need to update the
+  host first).
+- Zero dependency on the host project's code. Each language's SDK hits
+  the ABI directly through that language's own extern function
+  declarations (Go's `//go:wasmimport`, Rust's `extern "C"`, etc.) and
+  never imports the execsandbox host project's own packages.
 
-## 対応言語
+## Supported languages
 
-TinyGo（Go）→Rustの順で実装、両方とも着手済み。言語ごとにリポジトリ直下の
-ディレクトリを分ける（TinyGo版は`go/`、Rust版は`rust/`）。詳細は`PLAN.md`
-参照。
+Implemented in order, TinyGo (Go) then Rust — both are underway. Each
+language gets its own top-level directory (`go/` for the TinyGo version,
+`rust/` for the Rust version). See `PLAN.md` (Japanese) for details.
 
-- TinyGo版：[`go/execsandbox/`](go/execsandbox/)（パッケージ利用者向け
-  ドキュメントは[`go/execsandbox/README.md`](go/execsandbox/README.md)、
-  サンプルは[`go/examples/`](go/examples/)）。
-- Rust版：[`rust/execsandbox/`](rust/execsandbox/)（パッケージ利用者向け
-  ドキュメントは[`rust/execsandbox/README.md`](rust/execsandbox/README.md)、
-  サンプルは[`rust/execsandbox/examples/`](rust/execsandbox/examples/)——
-  Cargoの組み込みexamples機能を使うため、Go版と違いクレート内に置く）。
+- TinyGo version: [`go/execsandbox/`](go/execsandbox/) (package-user
+  documentation in
+  [`go/execsandbox/README.md`](go/execsandbox/README.md), examples in
+  [`go/examples/`](go/examples/)).
+- Rust version: [`rust/execsandbox/`](rust/execsandbox/) (crate-user
+  documentation in
+  [`rust/execsandbox/README.md`](rust/execsandbox/README.md), examples
+  in [`rust/execsandbox/examples/`](rust/execsandbox/examples/) — inside
+  the crate itself, unlike the Go version, since it uses Cargo's
+  built-in examples feature).
 
-## ビルドしたWASMモジュールの使い方
+## Using a built WASM module
 
-このSDKで書けるのはWASMモジュール（ゲスト）のコードのみ。実際に動かすには、
-[execsandbox-build](https://github.com/amisonnet8/execsandbox)（ビルダー）で
-ExecSandbox本体へ埋め込み、単一の実行ファイルにする必要がある。
+This SDK only lets you write the code for a WASM module (the guest). To
+actually run it, you need to embed it into the ExecSandbox host with
+[execsandbox-build](https://github.com/amisonnet8/execsandbox) (the
+builder) to produce a single executable.
 
-## 現在の状態
+## Current status
 
-TinyGo版・Rust版とも、ABIの薄いラッパー実装・単体テスト・examples・
-execsandbox本体を使ったE2Eテスト・GitHub Actions CIまで整備済み。詳細と
-進捗は`PLAN.md`参照。
+Both the TinyGo and Rust versions have a thin ABI wrapper
+implementation, unit tests, examples, end-to-end tests against the
+execsandbox host project, and GitHub Actions CI in place. See `PLAN.md`
+(Japanese) for details and progress.
 
-## テスト
+## Testing
 
-TinyGo版・Rust版のいずれも、単体テスト（ホストアーキテクチャ）・examples
-（wasmビルド確認）・E2Eテスト（execsandbox本体のソースチェックアウトを
-使った実機疎通確認）の3段構成。
+Both the TinyGo and Rust versions follow the same three-tier structure:
+unit tests (host architecture), examples (wasm build verification), and
+end-to-end tests (real interop verified against a checkout of the
+execsandbox host project's source).
 
-- TinyGo版：`cd go/execsandbox && go test ./...`、
-  `tinygo build -target=wasip1 -o out.wasm .`（各exampleディレクトリで）、
-  `EXECSANDBOX_HOST_REPO=/path/to/execsandbox go/tests/e2e_send_recv.sh`。
-- Rust版：`cd rust/execsandbox && cargo test`、
-  `cargo build --target wasm32-wasip1 --examples`、
-  `EXECSANDBOX_HOST_REPO=/path/to/execsandbox rust/tests/e2e_send_recv.sh`。
+- TinyGo version: `cd go/execsandbox && go test ./...`,
+  `tinygo build -target=wasip1 -o out.wasm .` (in each example
+  directory), `EXECSANDBOX_HOST_REPO=/path/to/execsandbox
+  go/tests/e2e_send_recv.sh`.
+- Rust version: `cd rust/execsandbox && cargo test`,
+  `cargo build --target wasm32-wasip1 --examples`,
+  `EXECSANDBOX_HOST_REPO=/path/to/execsandbox
+  rust/tests/e2e_send_recv.sh`.
 
-## ライセンス
+## License
 
 [MIT](LICENSE)
+
+---
+
+日本語版は [README_ja.md](README_ja.md) を参照してください。

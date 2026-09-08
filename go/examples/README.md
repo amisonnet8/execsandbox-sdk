@@ -29,3 +29,7 @@ then launch it like any other ExecSandbox instance. See that project's
 [`../tests/e2e_send_recv.sh`](../tests/e2e_send_recv.sh) and
 [`../tests/e2e_conn.sh`](../tests/e2e_conn.sh) in this repository for
 complete, working examples of building, stamping, and running these.
+
+---
+
+日本語版は [README_ja.md](README_ja.md) を参照してください。

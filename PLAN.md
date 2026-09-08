@@ -118,6 +118,24 @@
   wasm-buildジョブはディレクトリを走査する構成のため、追加のCI変更は
   不要（`go/examples/*/`のループ、`cargo build --examples`）。
 
+**Markdownドキュメントを英日両対応にした（2026-09-08）。** 対象は
+`README.md`・`go/execsandbox/README.md`・`go/examples/README.md`・
+`rust/execsandbox/README.md`の4ファイル（`PLAN.md`・`CLAUDE.md`・
+`.claude/rules/`配下は対象外、日本語のみで維持）。
+
+- **命名規則**：英語版は`README.md`、日本語版は`README_ja.md`。英語版
+  同士・日本語版同士でのみ相互リンクする（例：ルートの英語版は
+  `go/execsandbox/README.md`を、日本語版は
+  `go/execsandbox/README_ja.md`を指す）。
+- 各ファイル末尾に、相手言語版への誘導文をその**相手言語**で記載する
+  （英語版の末尾に「日本語版は README_ja.md を参照してください。」、
+  日本語版の末尾に"For the English version, see README.md."）。読者が
+  自分の言語しか読めなくても迷わず辿り着けるようにするため。
+- ルートの`README.md`は元々日本語だったため、内容を`README_ja.md`へ
+  移し、`README.md`は新規に英訳した。`go/execsandbox/`・`go/examples/`・
+  `rust/execsandbox/`の3ファイルは元々英語（pkg.go.dev/crates.io向けの
+  既定方針により）だったため、`README_ja.md`を新規に翻訳作成した。
+
 次は「次にやること」の5番のうち、パッケージマネージャへの公開方法の検討が
 残っている。
 （2026-09-08、execsandbox本体のフェーズ①〜④完了後に着手）
