@@ -2,88 +2,57 @@
 
 ## 現在地
 
-**TinyGo版SDKの最初の実装（ABIの薄いラッパー）を`execsandbox/`ディレクトリに
-作成した。** `Send`/`Recv`/`ConnWrite`/`MaxFrame`の4関数と、`Kind`/`Message`型を
-実装済み。TinyGo 0.42.0で`-target=wasip1`ビルドが通ることを一時的なmain
-パッケージ経由で確認し、生成されたwasm内に4つのABI関数名
-（`send`/`recv`/`conn_write`/`max_frame`、モジュール名`execsandbox`）が
-実際に埋め込まれていることも確認済み。
+**TinyGo版SDKは実装・単体テスト・実機疎通・CI・ドキュメントまで一区切り
+ついた状態。** 詳細は以下。
 
-**execsandbox本体のビルダーでの実機疎通確認も完了した。** 本体リポジトリを
-`~/reference/execsandbox`（このリポジトリの外、gitには含まれない）にcloneし、
-ソースから`cmd/execsandbox-build`（ビルダー）と6環境分のベースバイナリを
-ビルド。`execsandbox/`パッケージを使うだけのTinyGoゲストモジュールを3つ
-（送信専用nodeA、受信専用nodeB、`--max-frame`確認用、外部接続echo用）新規に
-書いてwasip1向けにビルドし、ビルダーでスタンプして実際に実行。
+- **実装**：`go/execsandbox/`に`Send`/`Recv`/`ConnWrite`/`MaxFrame`と
+  `Kind`/`Message`型。TinyGoの`//go:wasmimport`はwasm以外のターゲットでは
+  受理されないため`go/execsandbox/abi.go`を`//go:build wasm`で隔離し、
+  `hostSend`等をパッケージ変数化して`init()`で実ABIへ束縛する構造（詳細は
+  「テスト・CIの決定事項」）。**TinyGoは`//go:wasmimport`関数を値として
+  直接使えない**（`cannot use an exported function as value`）ため、
+  `init()`では無名関数でラップしてから変数へ代入している（要注意点）。
+- **単体テスト**：`go/execsandbox/execsandbox_test.go`。フェイクのhost関数で
+  タイムアウト変換・バッファ再確保・未知kindスキップ等をホスト
+  アーキテクチャ上で検証。`go/execsandbox/example_test.go`に
+  `ExampleSend`等（pkg.go.dev向け、`Output:`無しで実行はされない）。
+- **実機疎通・E2E**：`go/examples/{sender,receiver,echo}`（公開サンプル
+  兼E2E用フィクスチャ）と`go/tests/{lib.sh,e2e_send_recv.sh,e2e_conn.sh}`。
+  `EXECSANDBOX_HOST_REPO`環境変数が指す本体ソースチェックアウトから
+  `execsandbox-build`等を都度ビルドし、本体の`tests/e2e_basic.sh`・
+  `tests/e2e_conn.sh`と同じ構成・観測手段でSend/Recv/ConnWrite/MaxFrameの
+  実機疎通を確認する（`~/reference/execsandbox`で手元確認済み）。
+- **CI**：`.github/workflows/ci.yml`の`unit-test`（gofmt/vet/test）、
+  `wasm-build`（TinyGoで全examplesをビルド）、`integration`（本体をタグ
+  固定でcheckoutし上記e2eスクリプトを実行）の3ジョブ。詳細は「テスト・CIの
+  決定事項」参照。初回コミット（`8e12bab`）をpushしGitHub Actionsで3ジョブ
+  とも成功（green）を確認済み。
+- **ドキュメント**：`go/execsandbox/`はそれ自体が独立したGoモジュールで
+  あり、pkg.go.devはリポジトリ直下ではなく**モジュール直下**のREADMEを
+  表示するため、`go/execsandbox/README.md`（英語、理由は「対応言語」節）を
+  用意。`go/examples/README.md`にサンプルの一覧とビルド・実行方法。
 
-- `Send`→`Recv`: nodeAが送った文字列をnodeBが`Kind`・`Data`込みで正しく
-  受信できることを確認（本体の`tests/e2e_basic.sh`と同じ観測手段）。
-- `MaxFrame`: 既定値`1048576`（1M）、`--max-frame 2M`指定時`2097152`と、
-  仕様書§7.3の解釈通りの値が返ることを確認。
-- `ConnWrite`: 本体の`tests/connclient`から`-l`で待ち受けたサンドボックスへ
-  TCP接続し、SDKの`ConnWrite`で書き戻したデータが正しくエコーされることを
-  確認（本体の`tests/e2e_conn.sh`と同じ構成）。
-
-**単体テストとGitHub Actions CIも整備した。** 検証用コードは使い捨てず、
-以下の形で恒久化した。
-
-- `execsandbox/execsandbox_test.go`：`hostSend`/`hostRecv`/`hostConnWrite`/
-  `hostMaxFrame`をパッケージ変数化し（`execsandbox/abi.go`は`//go:build wasm`
-  で隔離、wasmビルド時のみ`init()`で実ABIを束縛）、フェイクのhost関数で
-  タイムアウト変換・バッファ再確保・未知kindスキップ等のロジックを
-  ホストアーキテクチャ上で単体テストできるようにした。**TinyGoは
-  `//go:wasmimport`関数を値として直接使えない**（`cannot use an exported
-  function as value`）ため、`abi.go`の`init()`では実ABI関数を無名関数で
-  ラップしてから変数へ代入している（要注意点）。
-- `examples/{sender,receiver,echo}`：手元検証で使ったTinyGoゲストモジュールを
-  そのまま公開サンプルとして恒久化（それぞれ`Send`単発、`Recv`単発、
-  `ConnWrite`によるエコー）。
-- `tests/{lib.sh,e2e_send_recv.sh,e2e_conn.sh}`：`EXECSANDBOX_HOST_REPO`
-  環境変数が指す本体ソースチェックアウトから`execsandbox-build`等を都度
-  ビルドし、上記examplesを実際に実行して疎通を確認する（本体の
-  `tests/e2e_basic.sh`・`tests/e2e_conn.sh`と同じ構成）。手元では
-  `EXECSANDBOX_HOST_REPO=~/reference/execsandbox`で実行確認済み。
-- `.github/workflows/ci.yml`：`unit-test`（gofmt/vet/test）、`wasm-build`
-  （TinyGoで全examplesをビルド）、`integration`（本体をタグ固定でcheckoutし
-  上記e2eスクリプトを実行）の3ジョブ。詳細は次節「テスト・CIの決定事項」参照。
-
-**初回コミット（`8e12bab`）をpushし、GitHub Actionsで3ジョブとも成功
-（green）を確認済み。** `integration`ジョブが通ったことで、CI環境
-（GitHub-hosted runner）上でもexecsandbox本体（`v0.1.0`固定）をソースから
-ビルドしてのSend/Recv/ConnWrite実機疎通が再現できることも確認できた。
-
-**公開パッケージとしてのドキュメントも整備した。** `execsandbox/`は
-それ自体が独立したGoモジュール（`go.mod`がそこにある）であり、
-pkg.go.devはリポジトリ直下の`README.md`ではなく**モジュール直下**の
-READMEを表示するため、リポジトリ直下のREADME.mdだけでは公開ページに
-説明文（godocの内容）しか出ない状態だった。以下を追加した。
-
-- `execsandbox/README.md`：パッケージ概要・インストール・最小限の使用例・
-  ABI互換性の説明。**godocと同じ理由（pkg.go.devの読者は本体より広く、
-  英語話者を含む）で英語**とした（2026-09-08決定。CLAUDE.md「godocコメント
-  言語: 英語のみ」の decisionを、同じくpkg.go.dev上に表示される
-  パッケージ内READMEにも拡張適用したもの）。
-- `execsandbox/example_test.go`：`ExampleSend`/`ExampleRecv`/
-  `ExampleConnWrite`。`Output:`コメントを付けていないため実行はされず
-  コンパイルのみ確認される（実ABI無しでも安全）が、pkg.go.devの
-  「Example」タブに表示される。
-- `examples/README.md`：3つのexampleの一覧と、TinyGoでのビルド方法・
-  ビルダーでのスタンプ方法（`tests/e2e_*.sh`への導線）。
-
-次は「次にやること」の4番（TinyGo版が一段落したらRustへ着手）に進む前に、
-現時点の`execsandbox/`パッケージ自体をこのまま完成形とするか、他に
-追加すべき使い勝手（ドキュメント等）がないか、ユーザーと相談すること。
-（2026-09-08、execsandbox本体のフェーズ①〜④完了後に着手）
+次は「次にやること」の4番（TinyGo版が一段落したらRustへ着手）へ進める
+段階。（2026-09-08、execsandbox本体のフェーズ①〜④完了後に着手）
 
 ### ディレクトリ構成の決定事項（2026-09-08）
 
 **言語ごとにリポジトリ直下のディレクトリを分ける。** Go/TinyGo版は
-`execsandbox/`（`go.mod`のモジュール名は
-`github.com/amisonnet8/execsandbox-sdk/execsandbox`、パッケージ名も
-`execsandbox`でディレクトリ名と一致させ、importの別名指定が不要になるように
-した）。Rust着手時は同様に`rust/`等、言語名で切る想定（着手時に改めて決定）。
+`go/`直下に、パッケージ本体（`go/execsandbox/`）・サンプル
+（`go/examples/`）・E2Eテスト（`go/tests/`）をまとめる。Rust着手時は同様に
+`rust/`（`rust/execsandbox/`・`rust/examples/`・`rust/tests/`）を追加する
+想定。
 
-このパッケージはwasmアーキテクチャ向けにしかビルドできない
+- **経緯**：当初はGo/TinyGo版だけが対象という理由で`execsandbox/`・
+  `examples/`・`tests/`をリポジトリ直下に直接置いていたが、Rust追加時に
+  `execsandbox/`（Go、直下）と`rust/`（Rust、直下にネスト）が非対称になる
+  点をユーザーに指摘され、`go/`配下へ移動した（2026-09-08）。
+- Goモジュール名は`github.com/amisonnet8/execsandbox-sdk/go/execsandbox`。
+  パッケージ名`execsandbox`とディレクトリ名を一致させ、importの別名指定が
+  不要になるようにしている（ディレクトリ名を`go`一段のみにしないのは、
+  Goの予約語`go`はパッケージ名にできないため）。
+
+`go/execsandbox/`はwasmアーキテクチャ向けにしかビルドできない
 （`//go:wasmimport`が非wasmターゲットでは受理されないため）。ビルドタグは
 付けていない。TinyGoの`-target=wasip1`、または標準Goでも
 `GOOS=wasip1 GOARCH=wasm go build`でビルド・型チェックできる。
@@ -94,8 +63,8 @@ READMEを表示するため、リポジトリ直下のREADME.mdだけでは公�
 非対称な依存を許容する。** `.claude/rules/abi-boundary.md`の「本体のコードへ
 依存しない」は**SDKの本番コード（go.mod依存・import）**の話であり、
 テスト・CIが検証目的で本体のソースを利用することは妨げない（ユーザー確認
-済み）。実際、`execsandbox/`パッケージ自体のgo.modには本体への依存は一切
-追加していない。
+済み）。実際、`go/execsandbox/`パッケージ自体のgo.modには本体への依存は
+一切追加していない。
 
 - **本体はGitHub Releasesではなくソースからビルドする。** `~/reference/
   execsandbox`への手元clone、CIでは`actions/checkout`の`repository:`で別
@@ -105,12 +74,12 @@ READMEを表示するため、リポジトリ直下のREADME.mdだけでは公�
   `EXECSANDBOX_HOST_REF`、現在`v0.1.0`）。本体のmain更新でSDK側CIが
   無関係な理由で壊れることを避けるため。本体の新しいタグを追随したく
   なったら、ここを書き換える。
-- E2Eスクリプト（`tests/*.sh`）は本体の`tests/e2e_basic.sh`・
+- E2Eスクリプト（`go/tests/*.sh`）は本体の`tests/e2e_basic.sh`・
   `tests/e2e_conn.sh`と同じ構成・観測手段（プロセス終了・標準出力・
   `tests/connclient`）を踏襲する。
 - **Unixソケットパス長の落とし穴**：`XDG_RUNTIME_DIR`を`mktemp -d`の既定
   パス（scratchpad配下等、長くなりがち）に置くと`bind: invalid argument`
-  で失敗することがある（108バイト前後の制限）。`tests/e2e_send_recv.sh`は
+  で失敗することがある（108バイト前後の制限）。`go/tests/e2e_send_recv.sh`は
   `/tmp`直下に短い一時ディレクトリを別途作ってこれに充てている。
 
 この構成が「同じ種類の判断や落とし穴」として今後も繰り返されるようなら、
@@ -159,7 +128,7 @@ execsandbox本体が提供するWASM ABIの上に、各言語ネイティブなS
    `.devcontainer/install-tinygo.sh`（postCreateCommand）でTinyGo公式配布を
    直接導入する構成にした。**devcontainerのリビルドが必要**）。
 2. ~~TinyGo版SDKの最初の実装（ABIの薄いラッパーから）。~~ 完了
-   （`execsandbox/`に`Send`/`Recv`/`ConnWrite`/`MaxFrame`を実装。
+   （`go/execsandbox/`に`Send`/`Recv`/`ConnWrite`/`MaxFrame`を実装。
    TinyGoでのwasip1ビルド疎通は一時的なmainパッケージで確認済み）。
 3. ~~execsandbox本体のビルダーで実際にWASMモジュールをビルド・実行して疎通
    確認する。~~ 完了（GitHub Releasesではなく、`~/reference/execsandbox`に

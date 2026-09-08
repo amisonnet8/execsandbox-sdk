@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: execsandbox
+        working-directory: go/execsandbox
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -48,7 +48,7 @@ jobs:
         run: bash .devcontainer/install-tinygo.sh
       - name: build examples with TinyGo (wasip1)
         run: |
-          for dir in examples/*/; do
+          for dir in go/examples/*/; do
             echo "=== $dir ==="
             (cd "$dir" && tinygo build -target=wasip1 -o /tmp/"$(basename "$dir")".wasm .)
           done
@@ -72,8 +72,8 @@ jobs:
       - name: e2e (send/recv)
         env:
           EXECSANDBOX_HOST_REPO: ${{ github.workspace }}/execsandbox-host
-        run: bash execsandbox-sdk/tests/e2e_send_recv.sh
+        run: bash execsandbox-sdk/go/tests/e2e_send_recv.sh
       - name: e2e (external connection)
         env:
           EXECSANDBOX_HOST_REPO: ${{ github.workspace }}/execsandbox-host
-        run: bash execsandbox-sdk/tests/e2e_conn.sh
+        run: bash execsandbox-sdk/go/tests/e2e_conn.sh

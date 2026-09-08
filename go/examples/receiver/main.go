@@ -7,7 +7,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/amisonnet8/execsandbox-sdk/execsandbox"
+	"github.com/amisonnet8/execsandbox-sdk/go/execsandbox"
 )
 
 func main() {

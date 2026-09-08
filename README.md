@@ -40,10 +40,11 @@ ExecSandboxインスタンスとメッセージをやり取りする。この呼
 
 ## 対応言語
 
-TinyGo（Go）→Rustの順で実装予定。TinyGo版は`execsandbox/`ディレクトリに
-着手済み（詳細は`PLAN.md`参照）。パッケージ利用者向けのドキュメント（英語）は
-[`execsandbox/README.md`](execsandbox/README.md)、サンプルは
-[`examples/`](examples/)を参照。
+TinyGo（Go）→Rustの順で実装予定。言語ごとにリポジトリ直下のディレクトリを
+分ける（TinyGo版は`go/`、Rust版は着手時に`rust/`を追加予定）。TinyGo版の
+実装は`go/execsandbox/`に着手済み（詳細は`PLAN.md`参照）。パッケージ利用者
+向けのドキュメント（英語）は[`go/execsandbox/README.md`](go/execsandbox/README.md)、
+サンプルは[`go/examples/`](go/examples/)を参照。
 
 ## ビルドしたWASMモジュールの使い方
 
@@ -53,19 +54,19 @@ ExecSandbox本体へ埋め込み、単一の実行ファイルにする必要が
 
 ## 現在の状態
 
-TinyGo版SDKの最初の実装（`execsandbox/`、ABIの薄いラッパー）に着手済み。
+TinyGo版SDKの最初の実装（`go/execsandbox/`、ABIの薄いラッパー）に着手済み。
 単体テスト・examples・execsandbox本体を使ったE2Eテスト・GitHub Actions CIも
 整備済み。詳細と進捗は`PLAN.md`参照。
 
 ## テスト
 
-- `cd execsandbox && go test ./...`：ホストアーキテクチャで動く単体テスト。
-- `examples/`：`Send`/`Recv`/`ConnWrite`の最小サンプル。TinyGoで
+- `cd go/execsandbox && go test ./...`：ホストアーキテクチャで動く単体テスト。
+- `go/examples/`：`Send`/`Recv`/`ConnWrite`の最小サンプル。TinyGoで
   `tinygo build -target=wasip1 -o out.wasm .`とビルドできる。
-- `tests/e2e_*.sh`：execsandbox本体のソースチェックアウトを使った実機
+- `go/tests/e2e_*.sh`：execsandbox本体のソースチェックアウトを使った実機
   疎通テスト。`EXECSANDBOX_HOST_REPO`環境変数で本体リポジトリのパスを
   指定して実行する（例:
-  `EXECSANDBOX_HOST_REPO=/path/to/execsandbox tests/e2e_send_recv.sh`）。
+  `EXECSANDBOX_HOST_REPO=/path/to/execsandbox go/tests/e2e_send_recv.sh`）。
 
 ## ライセンス
 

@@ -8,7 +8,7 @@
 // on rather than treating them as errors.
 package main
 
-import "github.com/amisonnet8/execsandbox-sdk/execsandbox"
+import "github.com/amisonnet8/execsandbox-sdk/go/execsandbox"
 
 func main() {
 	for {

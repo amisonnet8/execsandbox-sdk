@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/amisonnet8/execsandbox-sdk/execsandbox"
+	"github.com/amisonnet8/execsandbox-sdk/go/execsandbox"
 )
 
 func ExampleSend() {

@@ -4,7 +4,7 @@
 // sandbox.
 package main
 
-import "github.com/amisonnet8/execsandbox-sdk/execsandbox"
+import "github.com/amisonnet8/execsandbox-sdk/go/execsandbox"
 
 func main() {
 	execsandbox.Send(1, []byte("hello from execsandbox-sdk"))

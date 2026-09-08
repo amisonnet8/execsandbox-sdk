@@ -11,7 +11,7 @@ identifies what `Recv` returned, and timeouts are a `time.Duration`.
 ## Install
 
 ```
-go get github.com/amisonnet8/execsandbox-sdk/execsandbox
+go get github.com/amisonnet8/execsandbox-sdk/go/execsandbox
 ```
 
 ## Usage
@@ -26,7 +26,7 @@ tinygo build -target=wasip1 -o guest.wasm .
 ```go
 package main
 
-import "github.com/amisonnet8/execsandbox-sdk/execsandbox"
+import "github.com/amisonnet8/execsandbox-sdk/go/execsandbox"
 
 func main() {
 	execsandbox.Send(1, []byte("hello"))
@@ -39,7 +39,7 @@ func main() {
 ```
 
 See [`../examples`](../examples) for complete, runnable guest modules, and
-the [package documentation](https://pkg.go.dev/github.com/amisonnet8/execsandbox-sdk/execsandbox)
+the [package documentation](https://pkg.go.dev/github.com/amisonnet8/execsandbox-sdk/go/execsandbox)
 for the full API.
 
 ## ABI compatibility
