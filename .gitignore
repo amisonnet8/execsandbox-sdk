@@ -1,1 +1,6 @@
 *.wasm
+/target/
+**/target/
+# execsandboxはライブラリクレート(利用者が自分の依存解決をするため、
+# Cargo.lockは追跡しない)。
+Cargo.lock

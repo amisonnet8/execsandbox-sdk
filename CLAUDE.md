@@ -9,9 +9,9 @@
 ABI（`send`/`recv`/`conn_write`/`max_frame`）の上に、各言語ネイティブな皮を
 被せたSDKライブラリ集。詳細は`README.md`を参照。
 
-**現時点（このリポジトリの立ち上げ直後）ではコードは一切存在しない。**
 対応言語はTinyGo（Go）→Rustの順で決定済み（`PLAN.md`「対応言語（決定事項）」
-参照）。まずTinyGo版から着手すること。
+参照）。両方とも着手済み（TinyGo版は`go/`、Rust版は`rust/`）。現在地・進捗は
+`PLAN.md`参照。
 
 ## 本体リポジトリ（execsandbox）との関係
 
@@ -65,4 +65,5 @@ ABI（`send`/`recv`/`conn_write`/`max_frame`）の上に、各言語ネイティ
 言語は各言語の着手時に判断する。
 
 - **godoc（TinyGo/Go）: 英語のみ**（2026-09-08決定）。
-- rustdoc: 未決定。Rust着手時に改めて判断する。勝手に方針を決めない。
+- **rustdoc: 英語のみ**（2026-09-08決定。godocと同じ理由——crates.io/
+  docs.rsの読者も本体より広く、英語話者を含むため——で一貫させた）。

@@ -1,17 +1,24 @@
 {
   // 対応言語: TinyGo（Go）→Rustの順（PLAN.md参照）。
-  // Goは公式feature（devcontainers組織）で導入。TinyGoは公式featureが
-  // 存在しないため、devcontainer featureを使わずpostCreateCommandで
-  // TinyGo公式配布（.deb）を直接導入する（PLAN.md「決定事項」参照）。
+  // Go・Rustはいずれも公式feature（devcontainers組織）で導入。TinyGoは
+  // 公式featureが存在しないため、devcontainer featureを使わず
+  // postCreateCommandでTinyGo公式配布（.deb）を直接導入する
+  // （PLAN.md「決定事項」参照）。wasm32-wasip1ターゲットはfeatureの
+  // 範囲外のため、TinyGoと同じpostCreateCommandで追加導入する。
   "name": "execsandbox-sdk",
   "image": "mcr.microsoft.com/devcontainers/base:bookworm",
   "features": {
-    "ghcr.io/devcontainers/features/go:1": {}
+    "ghcr.io/devcontainers/features/go:1": {},
+    "ghcr.io/devcontainers/features/rust:1": {}
   },
-  "postCreateCommand": "bash .devcontainer/install-tinygo.sh",
+  "postCreateCommand": "bash .devcontainer/install-tinygo.sh && bash .devcontainer/install-rust-wasm-target.sh",
   "customizations": {
     "vscode": {
-      "extensions": ["golang.go", "tinygo.vscode-tinygo"]
+      "extensions": [
+        "golang.go",
+        "tinygo.vscode-tinygo",
+        "rust-lang.rust-analyzer"
+      ]
     }
   },
   "remoteUser": "vscode"

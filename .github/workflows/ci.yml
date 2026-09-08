@@ -14,7 +14,7 @@ env:
   EXECSANDBOX_HOST_REF: v0.1.0
 
 jobs:
-  unit-test:
+  unit-test-go:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -38,7 +38,7 @@ jobs:
       - name: go test
         run: go test -count=1 ./...
 
-  wasm-build:
+  wasm-build-go:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -55,7 +55,7 @@ jobs:
             (cd "$dir" && tinygo build -target=wasip1 -o /tmp/"$(basename "$dir")".wasm .)
           done
 
-  integration:
+  integration-go:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -80,3 +80,55 @@ jobs:
         env:
           EXECSANDBOX_HOST_REPO: ${{ github.workspace }}/execsandbox-host
         run: bash execsandbox-sdk/go/tests/e2e_conn.sh
+
+  unit-test-rust:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: rust/execsandbox
+    steps:
+      - uses: actions/checkout@v7
+      - name: cargo fmt
+        run: cargo fmt --check
+      - name: cargo clippy
+        run: cargo clippy --all-targets -- -D warnings
+      - name: cargo test
+        run: cargo test
+
+  wasm-build-rust:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: rust/execsandbox
+    steps:
+      - uses: actions/checkout@v7
+      - name: add wasm32-wasip1 target
+        run: rustup target add wasm32-wasip1
+      - name: build examples for wasm32-wasip1
+        run: cargo build --target wasm32-wasip1 --examples
+
+  integration-rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: execsandbox-sdk
+      - uses: actions/checkout@v7
+        with:
+          repository: amisonnet8/execsandbox
+          ref: ${{ env.EXECSANDBOX_HOST_REF }}
+          path: execsandbox-host
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+          cache: false
+      - name: add wasm32-wasip1 target
+        run: rustup target add wasm32-wasip1
+      - name: e2e (send/recv)
+        env:
+          EXECSANDBOX_HOST_REPO: ${{ github.workspace }}/execsandbox-host
+        run: bash execsandbox-sdk/rust/tests/e2e_send_recv.sh
+      - name: e2e (external connection)
+        env:
+          EXECSANDBOX_HOST_REPO: ${{ github.workspace }}/execsandbox-host
+        run: bash execsandbox-sdk/rust/tests/e2e_conn.sh

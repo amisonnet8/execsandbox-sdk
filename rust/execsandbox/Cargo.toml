@@ -1,0 +1,10 @@
+[package]
+name = "execsandbox"
+version = "0.1.0"
+edition = "2021"
+description = "Rust bindings for ExecSandbox's WASM guest ABI (send/recv/conn_write/max_frame), for guest modules built for wasm32-wasip1."
+license = "MIT"
+repository = "https://github.com/amisonnet8/execsandbox-sdk"
+readme = "README.md"
+
+[dependencies]

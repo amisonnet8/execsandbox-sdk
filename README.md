@@ -40,11 +40,17 @@ ExecSandboxインスタンスとメッセージをやり取りする。この呼
 
 ## 対応言語
 
-TinyGo（Go）→Rustの順で実装予定。言語ごとにリポジトリ直下のディレクトリを
-分ける（TinyGo版は`go/`、Rust版は着手時に`rust/`を追加予定）。TinyGo版の
-実装は`go/execsandbox/`に着手済み（詳細は`PLAN.md`参照）。パッケージ利用者
-向けのドキュメント（英語）は[`go/execsandbox/README.md`](go/execsandbox/README.md)、
-サンプルは[`go/examples/`](go/examples/)を参照。
+TinyGo（Go）→Rustの順で実装、両方とも着手済み。言語ごとにリポジトリ直下の
+ディレクトリを分ける（TinyGo版は`go/`、Rust版は`rust/`）。詳細は`PLAN.md`
+参照。
+
+- TinyGo版：[`go/execsandbox/`](go/execsandbox/)（パッケージ利用者向け
+  ドキュメントは[`go/execsandbox/README.md`](go/execsandbox/README.md)、
+  サンプルは[`go/examples/`](go/examples/)）。
+- Rust版：[`rust/execsandbox/`](rust/execsandbox/)（パッケージ利用者向け
+  ドキュメントは[`rust/execsandbox/README.md`](rust/execsandbox/README.md)、
+  サンプルは[`rust/execsandbox/examples/`](rust/execsandbox/examples/)——
+  Cargoの組み込みexamples機能を使うため、Go版と違いクレート内に置く）。
 
 ## ビルドしたWASMモジュールの使い方
 
@@ -54,19 +60,22 @@ ExecSandbox本体へ埋め込み、単一の実行ファイルにする必要が
 
 ## 現在の状態
 
-TinyGo版SDKの最初の実装（`go/execsandbox/`、ABIの薄いラッパー）に着手済み。
-単体テスト・examples・execsandbox本体を使ったE2Eテスト・GitHub Actions CIも
-整備済み。詳細と進捗は`PLAN.md`参照。
+TinyGo版・Rust版とも、ABIの薄いラッパー実装・単体テスト・examples・
+execsandbox本体を使ったE2Eテスト・GitHub Actions CIまで整備済み。詳細と
+進捗は`PLAN.md`参照。
 
 ## テスト
 
-- `cd go/execsandbox && go test ./...`：ホストアーキテクチャで動く単体テスト。
-- `go/examples/`：`Send`/`Recv`/`ConnWrite`の最小サンプル。TinyGoで
-  `tinygo build -target=wasip1 -o out.wasm .`とビルドできる。
-- `go/tests/e2e_*.sh`：execsandbox本体のソースチェックアウトを使った実機
-  疎通テスト。`EXECSANDBOX_HOST_REPO`環境変数で本体リポジトリのパスを
-  指定して実行する（例:
-  `EXECSANDBOX_HOST_REPO=/path/to/execsandbox go/tests/e2e_send_recv.sh`）。
+TinyGo版・Rust版のいずれも、単体テスト（ホストアーキテクチャ）・examples
+（wasmビルド確認）・E2Eテスト（execsandbox本体のソースチェックアウトを
+使った実機疎通確認）の3段構成。
+
+- TinyGo版：`cd go/execsandbox && go test ./...`、
+  `tinygo build -target=wasip1 -o out.wasm .`（各exampleディレクトリで）、
+  `EXECSANDBOX_HOST_REPO=/path/to/execsandbox go/tests/e2e_send_recv.sh`。
+- Rust版：`cd rust/execsandbox && cargo test`、
+  `cargo build --target wasm32-wasip1 --examples`、
+  `EXECSANDBOX_HOST_REPO=/path/to/execsandbox rust/tests/e2e_send_recv.sh`。
 
 ## ライセンス
 
