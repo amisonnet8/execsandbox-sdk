@@ -41,7 +41,9 @@ ExecSandboxインスタンスとメッセージをやり取りする。この呼
 ## 対応言語
 
 TinyGo（Go）→Rustの順で実装予定。TinyGo版は`execsandbox/`ディレクトリに
-着手済み（詳細は`PLAN.md`参照）。
+着手済み（詳細は`PLAN.md`参照）。パッケージ利用者向けのドキュメント（英語）は
+[`execsandbox/README.md`](execsandbox/README.md)、サンプルは
+[`examples/`](examples/)を参照。
 
 ## ビルドしたWASMモジュールの使い方
 

@@ -47,6 +47,29 @@
   （TinyGoで全examplesをビルド）、`integration`（本体をタグ固定でcheckoutし
   上記e2eスクリプトを実行）の3ジョブ。詳細は次節「テスト・CIの決定事項」参照。
 
+**初回コミット（`8e12bab`）をpushし、GitHub Actionsで3ジョブとも成功
+（green）を確認済み。** `integration`ジョブが通ったことで、CI環境
+（GitHub-hosted runner）上でもexecsandbox本体（`v0.1.0`固定）をソースから
+ビルドしてのSend/Recv/ConnWrite実機疎通が再現できることも確認できた。
+
+**公開パッケージとしてのドキュメントも整備した。** `execsandbox/`は
+それ自体が独立したGoモジュール（`go.mod`がそこにある）であり、
+pkg.go.devはリポジトリ直下の`README.md`ではなく**モジュール直下**の
+READMEを表示するため、リポジトリ直下のREADME.mdだけでは公開ページに
+説明文（godocの内容）しか出ない状態だった。以下を追加した。
+
+- `execsandbox/README.md`：パッケージ概要・インストール・最小限の使用例・
+  ABI互換性の説明。**godocと同じ理由（pkg.go.devの読者は本体より広く、
+  英語話者を含む）で英語**とした（2026-09-08決定。CLAUDE.md「godocコメント
+  言語: 英語のみ」の decisionを、同じくpkg.go.dev上に表示される
+  パッケージ内READMEにも拡張適用したもの）。
+- `execsandbox/example_test.go`：`ExampleSend`/`ExampleRecv`/
+  `ExampleConnWrite`。`Output:`コメントを付けていないため実行はされず
+  コンパイルのみ確認される（実ABI無しでも安全）が、pkg.go.devの
+  「Example」タブに表示される。
+- `examples/README.md`：3つのexampleの一覧と、TinyGoでのビルド方法・
+  ビルダーでのスタンプ方法（`tests/e2e_*.sh`への導線）。
+
 次は「次にやること」の4番（TinyGo版が一段落したらRustへ着手）に進む前に、
 現時点の`execsandbox/`パッケージ自体をこのまま完成形とするか、他に
 追加すべき使い勝手（ドキュメント等）がないか、ユーザーと相談すること。
