@@ -79,9 +79,13 @@
   `wasm-build-rust`（wasm32-wasip1でexamplesビルド）・`integration-rust`
   （本体をタグ固定でcheckoutしe2eスクリプトを実行）を追加。既存のGo向け
   3ジョブも`unit-test-go`/`wasm-build-go`/`integration-go`に改名した
-  （2言語になったための明確化）。**まだpush・CI実行はしていない**。
+  （2言語になったための明確化）。pushしてGitHub Actionsで6ジョブとも成功
+  （green）を確認済み。
 - **ドキュメント**：`rust/execsandbox/README.md`（crates.io/docs.rs向け、
   英語。rustdoc言語決定は「対応言語（決定事項）」参照）。
+
+**devcontainerにVS Code拡張`github.vscode-github-actions`も追加した**
+（`.github/workflows/ci.yml`をエディタ上で見やすくするため）。
 
 次は「次にやること」の4番が完了し、5番（保留事項の見直し等）へ進める段階。
 （2026-09-08、execsandbox本体のフェーズ①〜④完了後に着手）
@@ -221,11 +225,11 @@ execsandbox本体が提供するWASM ABIの上に、各言語ネイティブなS
    cloneした本体をソースからビルドして使用。詳細は「現在地」参照）。
 4. ~~TinyGo版が一段落したらRustに着手する（rustdocコメント言語をその時点で
    改めて判断）。~~ 完了（`rust/execsandbox/`に実装・単体テスト・
-   examples・E2E・CI・ドキュメント。rustdocは英語に決定。詳細は「現在地」
-   参照。**まだpushしていない**）。
-5. 両言語とも実装が一区切りついたので、次に何をするかユーザーと相談する
-   （候補: パッケージマネージャへの公開方法の検討（保留事項）、CIで
-   Rust版のpush・実行確認、他に追加すべき使い勝手やドキュメント等）。
+   examples・E2E・CI・ドキュメント。rustdocは英語に決定。CIもpush済みで
+   6ジョブとも成功（green）確認済み。詳細は「現在地」参照）。
+5. 両言語とも実装・CI確認まで一区切りついたので、次に何をするかユーザーと
+   相談する（候補: パッケージマネージャへの公開方法の検討（保留事項）、
+   他に追加すべき使い勝手やドキュメント等）。
 
 ## 参考: execsandbox本体との役割分担
 
