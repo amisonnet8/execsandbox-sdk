@@ -139,10 +139,11 @@
 **両言語ともパッケージマネージャへの公開が完了した（2026-09-10）。**
 Go版はpkg.go.dev（`go/execsandbox/v0.1.0`タグ、
 https://pkg.go.dev/github.com/amisonnet8/execsandbox-sdk/go/execsandbox ）、
-Rust版はcrates.io（`execsandbox` v0.1.0、
+Rust版はcrates.io（`execsandbox` v0.1.1、
 https://crates.io/crates/execsandbox 、docs.rsにも掲載済み）。両言語の
 READMEにそれぞれのバッジも追加済み。詳細な手順・確認結果は「次にやること」
-6〜8番参照。
+6〜9番参照（Rustはv0.1.0公開後にInstall節記述の矛盾が発覚し、v0.1.1で
+修正済み。9番参照）。
 
 次は特に決まった作業はない。何を次に進めるかユーザーと相談する。
 
@@ -400,6 +401,18 @@ execsandbox本体が提供するWASM ABIの上に、各言語ネイティブなS
    （「Supported languages」/「対応言語」節のRust版の項）・
    `rust/execsandbox/README.md`/`README_ja.md`（見出し直下）の計4ファイルに
    追加。**Rust側の公開作業（7番）は全項目完了。**
+9. **rust/execsandboxをv0.1.1へ上げてREADMEの矛盾を修正した。**
+   （2026-09-10）。ドキュメント最終見直しの過程で発覚：8番のInstall節書き換え
+   は`cargo publish`の**後**に行ったため、crates.ioへ公開済みのv0.1.0には
+   「crates.io未公開、git依存で参照」という古いREADMEが**そのまま**入って
+   しまっていた（crates.ioは公開済みバージョンの中身を変更できないため）。
+   `docs.rs`のソース表示で実際にその矛盾（未公開ページが公開済み状態で
+   その記述を出す）を確認した上で、コード変更なしの
+   README修正のみとしてpatchバージョンv0.1.1を作成・公開。
+   `cargo publish --dry-run`→`cargo publish`とも成功、crates.io API・
+   docs.rsのソース表示（`cargo add execsandbox`に修正されていること）を
+   確認済み。**Go側は同種の問題なし**（badge追加はtag作成後だが、
+   矛盾する記述ではなく見た目の話のみなので再公開不要と判断）。
 
 ## 参考: execsandbox本体との役割分担
 
