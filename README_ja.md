@@ -40,9 +40,9 @@ ExecSandboxインスタンスとメッセージをやり取りする。この呼
 
 ## 対応言語
 
-TinyGo（Go）→Rustの順で実装、両方とも着手済み。言語ごとにリポジトリ直下の
-ディレクトリを分ける（TinyGo版は`go/`、Rust版は`rust/`）。詳細は`PLAN.md`
-参照。
+TinyGo（Go）→Rustの順で実装、両方ともv0.1.0を公開済み。言語ごとに
+リポジトリ直下のディレクトリを分ける（TinyGo版は`go/`、Rust版は`rust/`）。
+詳細は`PLAN.md`参照。
 
 - TinyGo版：[`go/execsandbox/`](go/execsandbox/)（パッケージ利用者向け
   ドキュメントは[`go/execsandbox/README_ja.md`](go/execsandbox/README_ja.md)、
@@ -64,8 +64,9 @@ ExecSandbox本体へ埋め込み、単一の実行ファイルにする必要が
 ## 現在の状態
 
 TinyGo版・Rust版とも、ABIの薄いラッパー実装・単体テスト・examples・
-execsandbox本体を使ったE2Eテスト・GitHub Actions CIまで整備済み。詳細と
-進捗は`PLAN.md`参照。
+execsandbox本体を使ったE2Eテスト・GitHub Actions CIまで整備済みで、
+v0.1.0としてそれぞれpkg.go.dev・crates.ioへ公開済み。詳細と進捗は
+`PLAN.md`参照。
 
 ## テスト
 
