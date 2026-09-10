@@ -52,6 +52,8 @@ TinyGo（Go）→Rustの順で実装、両方とも着手済み。言語ごと�
   ドキュメントは[`rust/execsandbox/README_ja.md`](rust/execsandbox/README_ja.md)、
   サンプルは[`rust/execsandbox/examples/`](rust/execsandbox/examples/)——
   Cargoの組み込みexamples機能を使うため、Go版と違いクレート内に置く）。
+  [![Crates.io](https://img.shields.io/crates/v/execsandbox.svg)](https://crates.io/crates/execsandbox)
+  [![docs.rs](https://docs.rs/execsandbox/badge.svg)](https://docs.rs/execsandbox)
 
 ## ビルドしたWASMモジュールの使い方
 

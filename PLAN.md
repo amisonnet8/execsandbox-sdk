@@ -136,9 +136,15 @@
   `rust/execsandbox/`の3ファイルは元々英語（pkg.go.dev/crates.io向けの
   既定方針により）だったため、`README_ja.md`を新規に翻訳作成した。
 
-次は「次にやること」の6番以降（パッケージマネージャへの公開の実作業。
-論点整理は「パッケージ公開の決定事項」で完了）。
-（2026-09-08、execsandbox本体のフェーズ①〜④完了後に着手）
+**両言語ともパッケージマネージャへの公開が完了した（2026-09-10）。**
+Go版はpkg.go.dev（`go/execsandbox/v0.1.0`タグ、
+https://pkg.go.dev/github.com/amisonnet8/execsandbox-sdk/go/execsandbox ）、
+Rust版はcrates.io（`execsandbox` v0.1.0、
+https://crates.io/crates/execsandbox 、docs.rsにも掲載済み）。両言語の
+READMEにそれぞれのバッジも追加済み。詳細な手順・確認結果は「次にやること」
+6〜8番参照。
+
+次は特に決まった作業はない。何を次に進めるかユーザーと相談する。
 
 ### ディレクトリ構成の決定事項（2026-09-08）
 
@@ -344,12 +350,56 @@ execsandbox本体が提供するWASM ABIの上に、各言語ネイティブなS
       `go/execsandbox/README.md`/`README_ja.md`（見出し直下）の計4ファイルに
       `[![Go Reference](https://pkg.go.dev/badge/...)](https://pkg.go.dev/...)`
       を追加。**Go側の公開作業（6番）は全項目完了。**
-7. **Rust側の公開作業**（Go完了後にあらためてタスク化する）。
-   crates.ioアカウント・APIトークンをユーザー側で準備してもらい、公開前の
-   最終API表面レビューを経て`cargo publish`（不可逆操作のためユーザー
-   実行・承認の上で進める）。
-8. 公開後の後片付け: `rust/execsandbox/README.md`のInstall節をcrates.io版
-   （`cargo add execsandbox`）に書き換え。crates.ioバッジの追加要否を検討。
+7. **Rust側の公開作業**（Go側と同じ進め方。不可逆なtoken発行・
+   `cargo publish`以外はここで一通り確認しながら進める）。
+   1. ~~CIがgreenであることを再確認する。~~ 完了（2026-09-10）。ローカルで
+      `cargo fmt --check`・`cargo clippy --all-targets -- -D warnings`・
+      `cargo test`（unit 9件・doc-test 4件全てPASS）・
+      `cargo build --target wasm32-wasip1 --examples`を確認。GitHub
+      Actions側も最新run（CI #11、現HEAD `cda0c58`、push済み）がgreen。
+   2. ~~v0.1.0として公開して問題ないAPI状態か最終確認する。~~ 完了
+      （2026-09-10）。`src/lib.rs`を通読。公開API（`send`/`recv`/
+      `conn_write`/`max_frame`、`Kind`/`Message`/`UnknownConnection`）は
+      全てdocコメント・doc-test付きで、`Host`トレイトによる非公開の
+      テスト用シームとの境界も明確。`Cargo.toml`の`description`/
+      `license`/`repository`等のメタデータも確認済み。問題なし。
+   3. ~~`rust/execsandbox/README.md`・`README_ja.md`の現状記述が実態と
+      齟齬がないか確認する。~~ 完了（2026-09-10）。英語版・日本語版とも
+      現行APIと一致。「まだcrates.io未公開、git依存で参照」という案内も
+      現状に即している（書き換えは公開後、8で扱う）。
+   4. ~~crates.ioアカウント・APIトークンをユーザー側で準備する。~~ 完了
+      （2026-09-10、ユーザー実行）。トークンは`publish-new`・
+      `publish-update`スコープで発行、`cargo login`で登録済み
+      （`/usr/local/cargo/credentials.toml`の存在のみ確認。中身は
+      見ていない——トークンをユーザー以外が認識しない方針のため）。
+   5. ~~`cargo publish --dry-run`でパッケージング内容を確認する。~~ 完了
+      （2026-09-10）。13ファイル・27.3KiB（圧縮8.7KiB）、ビルド検証も
+      PASS。`cargo package --list`で内容確認：`Cargo.toml`・`LICENSE`・
+      `README.md`/`README_ja.md`・`src/{lib,abi}.rs`・`examples/*.rs`。
+      `rust/tests/`のe2eスクリプト等、不要なファイルは含まれていない。
+   6. ~~`cargo publish`を実行する。~~ 完了（2026-09-10）。初回試行は
+      「メールアドレス未認証」でエラー（400、公開はされていない）。
+      ユーザーがcrates.io側でメール認証後、再実行して成功
+      （`Published execsandbox v0.1.0 at registry crates-io`）。
+   7. ~~docs.rsにv0.1.0のドキュメントが掲載されたことを確認する。~~ 完了
+      （2026-09-10）。crates.io側はAPI
+      （`https://crates.io/api/v1/crates/execsandbox`）でv0.1.0・
+      description・repositoryとも正しく確認済み。docs.rs
+      （`https://docs.rs/execsandbox/0.1.0/execsandbox/`）は初回アクセス
+      直後は404だったが（ビルド反映のタイムラグ）、少し時間を置いて
+      再アクセスしたところv0.1.0のrustdocが正しく表示されることを確認
+      （`send`/`recv`/`conn_write`/`max_frame`、`Kind`/`Message`/
+      `UnknownConnection`全て掲載）。**Rust側の公開（7番）は全項目
+      完了。**
+8. ~~**公開後の後片付け**（7完了後）。~~ 完了（2026-09-10）。
+   `rust/execsandbox/README.md`・`README_ja.md`のInstall節をgit依存の案内
+   から`cargo add execsandbox`に書き換え。crates.io・docs.rsバッジ
+   （[![Crates.io](https://img.shields.io/crates/v/execsandbox.svg)]・
+   [![docs.rs](https://docs.rs/execsandbox/badge.svg)]、Go側の
+   pkg.go.devバッジと同じ要領）をルート`README.md`/`README_ja.md`
+   （「Supported languages」/「対応言語」節のRust版の項）・
+   `rust/execsandbox/README.md`/`README_ja.md`（見出し直下）の計4ファイルに
+   追加。**Rust側の公開作業（7番）は全項目完了。**
 
 ## 参考: execsandbox本体との役割分担
 

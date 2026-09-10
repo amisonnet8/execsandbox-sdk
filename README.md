@@ -59,6 +59,8 @@ language gets its own top-level directory (`go/` for the TinyGo version,
   in [`rust/execsandbox/examples/`](rust/execsandbox/examples/) — inside
   the crate itself, unlike the Go version, since it uses Cargo's
   built-in examples feature).
+  [![Crates.io](https://img.shields.io/crates/v/execsandbox.svg)](https://crates.io/crates/execsandbox)
+  [![docs.rs](https://docs.rs/execsandbox/badge.svg)](https://docs.rs/execsandbox)
 
 ## Using a built WASM module
 

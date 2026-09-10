@@ -1,5 +1,8 @@
 # execsandbox
 
+[![Crates.io](https://img.shields.io/crates/v/execsandbox.svg)](https://crates.io/crates/execsandbox)
+[![docs.rs](https://docs.rs/execsandbox/badge.svg)](https://docs.rs/execsandbox)
+
 [ExecSandbox](https://github.com/amisonnet8/execsandbox)のWASMゲストABI
 （`send`/`recv`/`conn_write`/`max_frame`）向けのRustバインディング。
 `wasm32-wasip1`ターゲット向けにビルドするゲストモジュール向け。
@@ -11,12 +14,8 @@ APIの裏に隠す：`send`/`recv`/`conn_write`は`&[u8]`/`Vec<u8>`を扱い、
 
 ## インストール
 
-このクレートはまだcrates.ioに公開していない。公開までは、このリポジトリを
-直接gitで参照すること：
-
-```toml
-[dependencies]
-execsandbox = { git = "https://github.com/amisonnet8/execsandbox-sdk" }
+```
+cargo add execsandbox
 ```
 
 ## 使い方

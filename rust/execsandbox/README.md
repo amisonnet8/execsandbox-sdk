@@ -1,5 +1,8 @@
 # execsandbox
 
+[![Crates.io](https://img.shields.io/crates/v/execsandbox.svg)](https://crates.io/crates/execsandbox)
+[![docs.rs](https://docs.rs/execsandbox/badge.svg)](https://docs.rs/execsandbox)
+
 Rust bindings for [ExecSandbox](https://github.com/amisonnet8/execsandbox)'s
 WASM guest ABI (`send`/`recv`/`conn_write`/`max_frame`), for guest modules
 built for the `wasm32-wasip1` target.
@@ -11,12 +14,8 @@ Rust-native API: `send`/`recv`/`conn_write` work with `&[u8]`/`Vec<u8>`, a
 
 ## Install
 
-This crate is not yet published to crates.io. Until then, depend on it
-directly from this repository:
-
-```toml
-[dependencies]
-execsandbox = { git = "https://github.com/amisonnet8/execsandbox-sdk" }
+```
+cargo add execsandbox
 ```
 
 ## Usage
