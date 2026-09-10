@@ -44,10 +44,11 @@ language-native type (`time.Duration`, etc.) belong here.
 
 ## Supported languages
 
-Implemented in order, TinyGo (Go) then Rust — both have reached a
-published v0.1.0 release. Each language gets its own top-level directory
-(`go/` for the TinyGo version, `rust/` for the Rust version). See
-`PLAN.md` (Japanese) for details.
+Implemented in order, TinyGo (Go) then Rust — both have been published
+to their language's package registry (see the badges below for current
+versions). Each language gets its own top-level directory (`go/` for the
+TinyGo version, `rust/` for the Rust version). See `PLAN.md` (Japanese)
+for details.
 
 - TinyGo version: [`go/execsandbox/`](go/execsandbox/) (package-user
   documentation in
@@ -75,8 +76,9 @@ builder) to produce a single executable.
 Both the TinyGo and Rust versions have a thin ABI wrapper
 implementation, unit tests, examples, end-to-end tests against the
 execsandbox host project, and GitHub Actions CI in place, and have been
-published as v0.1.0 to pkg.go.dev and crates.io respectively. See
-`PLAN.md` (Japanese) for details and progress.
+published to pkg.go.dev and crates.io respectively (see the badges under
+"Supported languages" above for current versions). See `PLAN.md`
+(Japanese) for details and progress.
 
 ## Testing
 
