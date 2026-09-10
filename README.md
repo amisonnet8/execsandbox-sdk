@@ -52,6 +52,7 @@ language gets its own top-level directory (`go/` for the TinyGo version,
   documentation in
   [`go/execsandbox/README.md`](go/execsandbox/README.md), examples in
   [`go/examples/`](go/examples/)).
+  [![Go Reference](https://pkg.go.dev/badge/github.com/amisonnet8/execsandbox-sdk/go/execsandbox.svg)](https://pkg.go.dev/github.com/amisonnet8/execsandbox-sdk/go/execsandbox)
 - Rust version: [`rust/execsandbox/`](rust/execsandbox/) (crate-user
   documentation in
   [`rust/execsandbox/README.md`](rust/execsandbox/README.md), examples

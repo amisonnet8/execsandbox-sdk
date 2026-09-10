@@ -47,6 +47,7 @@ TinyGo（Go）→Rustの順で実装、両方とも着手済み。言語ごと�
 - TinyGo版：[`go/execsandbox/`](go/execsandbox/)（パッケージ利用者向け
   ドキュメントは[`go/execsandbox/README_ja.md`](go/execsandbox/README_ja.md)、
   サンプルは[`go/examples/`](go/examples/)）。
+  [![Go Reference](https://pkg.go.dev/badge/github.com/amisonnet8/execsandbox-sdk/go/execsandbox.svg)](https://pkg.go.dev/github.com/amisonnet8/execsandbox-sdk/go/execsandbox)
 - Rust版：[`rust/execsandbox/`](rust/execsandbox/)（パッケージ利用者向け
   ドキュメントは[`rust/execsandbox/README_ja.md`](rust/execsandbox/README_ja.md)、
   サンプルは[`rust/execsandbox/examples/`](rust/execsandbox/examples/)——

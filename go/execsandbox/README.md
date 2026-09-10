@@ -1,5 +1,7 @@
 # execsandbox
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/amisonnet8/execsandbox-sdk/go/execsandbox.svg)](https://pkg.go.dev/github.com/amisonnet8/execsandbox-sdk/go/execsandbox)
+
 Go bindings for [ExecSandbox](https://github.com/amisonnet8/execsandbox)'s
 WASM guest ABI (`send`/`recv`/`conn_write`/`max_frame`), for guest modules
 compiled with [TinyGo](https://tinygo.org/).

@@ -1,5 +1,7 @@
 # execsandbox
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/amisonnet8/execsandbox-sdk/go/execsandbox.svg)](https://pkg.go.dev/github.com/amisonnet8/execsandbox-sdk/go/execsandbox)
+
 [ExecSandbox](https://github.com/amisonnet8/execsandbox)のWASMゲストABI
 （`send`/`recv`/`conn_write`/`max_frame`）向けのGoバインディング。
 [TinyGo](https://tinygo.org/)でコンパイルするゲストモジュール向け。

@@ -136,8 +136,8 @@
   `rust/execsandbox/`の3ファイルは元々英語（pkg.go.dev/crates.io向けの
   既定方針により）だったため、`README_ja.md`を新規に翻訳作成した。
 
-次は「次にやること」の5番のうち、パッケージマネージャへの公開方法の検討が
-残っている。
+次は「次にやること」の6番以降（パッケージマネージャへの公開の実作業。
+論点整理は「パッケージ公開の決定事項」で完了）。
 （2026-09-08、execsandbox本体のフェーズ①〜④完了後に着手）
 
 ### ディレクトリ構成の決定事項（2026-09-08）
@@ -240,6 +240,33 @@ devcontainer feature（有志コレクション等）に頼らず、そのツー
   （`rustup target add wasm32-wasip1`）をpostCreateCommandで追加実行する
   （2026-09-08）。
 
+### パッケージ公開の決定事項（2026-09-10）
+
+**両言語ともパッケージマネージャへ公開する方向で進める。** 「保留事項」に
+あった論点を洗い出し、以下を決定・確認した。
+
+- **バージョニングはGo/Rustで独立させる。** ABIは共有しているが言語レイヤー
+  の変更履歴は別物であり、同期させると片方だけ変更があった時に無意味な
+  バージョンを刻む羽目になる。Rust側は`Cargo.toml`に既に`version = "0.1.0"`
+  があるためそのまま、Go側もgit tagを`go/execsandbox/v0.1.0`から開始する
+  （Goはモジュールがリポジトリ直下でないため、tag名にサブディレクトリの
+  パスプレフィックスが必要）。
+- **リポジトリは既に公開（public）設定であることを確認済み**
+  （2026-09-10、WebFetchで確認）。pkg.go.dev・crates.ioどちらの公開経路も
+  これが前提。
+- **Go/pkg.go.devは明示的な「公開」操作が不要。** Goモジュールはgit経由で
+  直接解決されるため、`go get`はtagが無い状態でも疑似バージョンで既に動く。
+  必要なのは`go/execsandbox/vX.Y.Z`形式のtag作成・pushのみ（pkg.go.devの
+  インデックスは初回アクセス時にクロールされて載る）。
+- **Rust/crates.ioは`cargo publish`が必須で、不可逆。** 実行にはcrates.io
+  アカウント（GitHubログイン）とAPIトークンが要り、これはユーザー側の対応
+  （私が代行できない）。公開したバージョンは削除不可（yankのみ）なので、
+  **API表面（`UnknownConnection`型等）が確定してから**実行する。
+- **公開後に追従が必要な箇所**：`rust/execsandbox/README.md`の「Install」
+  節（現在git依存の案内）をcrates.io版（`cargo add execsandbox`）へ
+  書き換える。ルート`README.md`/`README_ja.md`・各パッケージREADMEへの
+  pkg.go.dev/crates.ioバッジ追加も検討する。
+
 ## このプロジェクトについて
 
 execsandbox本体が提供するWASM ABIの上に、各言語ネイティブなSDKライブラリを
@@ -258,8 +285,8 @@ execsandbox本体が提供するWASM ABIの上に、各言語ネイティブなS
 
 ## 保留事項
 
-- **パッケージマネージャへの公開方法。** 各言語の実装着手時に決める
-  （CI構成は上記「テスト・CIの決定事項」により決着済み）。
+（現時点でなし。パッケージマネージャへの公開方法は「パッケージ公開の
+決定事項」により決着済み。）
 
 ## 次にやること
 
@@ -277,9 +304,52 @@ execsandbox本体が提供するWASM ABIの上に、各言語ネイティブなS
    改めて判断）。~~ 完了（`rust/execsandbox/`に実装・単体テスト・
    examples・E2E・CI・ドキュメント。rustdocは英語に決定。CIもpush済みで
    6ジョブとも成功（green）確認済み。詳細は「現在地」参照）。
-5. 両言語とも実装・CI確認まで一区切りついたので、次に何をするかユーザーと
-   相談する（候補: パッケージマネージャへの公開方法の検討（保留事項）、
-   他に追加すべき使い勝手やドキュメント等）。
+5. ~~両言語とも実装・CI確認まで一区切りついたので、次に何をするかユーザーと
+   相談する。~~ 完了（パッケージマネージャへの公開を検討する方向で合意。
+   論点は「パッケージ公開の決定事項」参照）。
+6. **Go側の公開作業**（Rustより先に着手。tagのpush以外はほぼ不可逆性が
+   ないため、ここで一通り確認しながら進める）。
+   1. ~~CIがgreenであることを再確認する。~~ 完了（2026-09-10）。ローカルで
+      `gofmt -l`・`go vet ./...`・`go test ./...`（9件全てPASS）、
+      `go/examples/`4件全てTinyGoでwasip1ビルド成功を確認。GitHub Actions
+      側も最新run（CI #10、現HEAD `be9f5ed`）がgreenであることをWebFetchで
+      確認済み。
+   2. ~~v0.1.0として公開して問題ないAPI状態か最終確認する。~~ 完了
+      （2026-09-10）。`execsandbox.go`・`doc.go`・`abi.go`を通読。公開API
+      （`Kind`/`Message`/`Send`/`Recv`/`ConnWrite`/`MaxFrame`）は全て
+      docコメント付きで、非公開ヘルパー（`ensureRecvBuf`等）との境界も
+      明確。問題なし。
+   3. ~~`go/execsandbox/README.md`のInstall節・使用例が現状のAPIと齟齬が
+      ないか確認する。~~ 完了（2026-09-10）。英語版・日本語版
+      （README_ja.md）とも現行APIと一致。使用例は`example_test.go`の
+      `Example*`関数と同一で、`go test`で型チェック済み（齟齬があれば
+      ビルドが落ちる）。
+   4. ~~tag名`go/execsandbox/v0.1.0`でannotated tagを作成する。~~ 完了
+      （2026-09-10、ユーザー実行。`be9f5ed`を指す）。
+   5. ~~tagをpushする。~~ 完了（2026-09-10、ユーザー実行。origin/GitHubへの
+      push・ローカル/リモート両方でtagを確認済み）。
+   6. ~~pkg.go.devがモジュールを認識したことを確認する。~~ 完了
+      （2026-09-10）。`proxy.golang.org`側は先にv0.1.0を解決済みだった
+      （tag `go/execsandbox/v0.1.0`→`be9f5ed`）。pkg.go.dev側は初回アクセス
+      直後は404だったが（インデックス反映のタイムラグ）、少し時間を置いて
+      再アクセスしたところ
+      `https://pkg.go.dev/github.com/amisonnet8/execsandbox-sdk/go/execsandbox@v0.1.0`
+      でv0.1.0のドキュメントが正しく表示されることを確認（`Send`/`Recv`/
+      `ConnWrite`/`MaxFrame`、`Kind`/`Message`全て掲載）。**Go側の公開は
+      完了。**
+   7. ~~pkg.go.devバッジをルート`README.md`/`README_ja.md`・
+      `go/execsandbox/README.md`へ追加するか検討する。~~ 完了
+      （2026-09-10）。追加する方針とし、ルート`README.md`/`README_ja.md`
+      （「Supported languages」/「対応言語」節のTinyGo版の項）・
+      `go/execsandbox/README.md`/`README_ja.md`（見出し直下）の計4ファイルに
+      `[![Go Reference](https://pkg.go.dev/badge/...)](https://pkg.go.dev/...)`
+      を追加。**Go側の公開作業（6番）は全項目完了。**
+7. **Rust側の公開作業**（Go完了後にあらためてタスク化する）。
+   crates.ioアカウント・APIトークンをユーザー側で準備してもらい、公開前の
+   最終API表面レビューを経て`cargo publish`（不可逆操作のためユーザー
+   実行・承認の上で進める）。
+8. 公開後の後片付け: `rust/execsandbox/README.md`のInstall節をcrates.io版
+   （`cargo add execsandbox`）に書き換え。crates.ioバッジの追加要否を検討。
 
 ## 参考: execsandbox本体との役割分担
 
